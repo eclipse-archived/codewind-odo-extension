@@ -10,6 +10,14 @@ pipeline {
 
     stages {
         stage('Build') {
+            // This when clause disables Tagged build
+            when {
+                beforeAgent true
+                not {
+                    buildingTag()
+                }
+            }
+            
             steps {
                 sh '''#!/usr/bin/env bash
                     export REPO_NAME="codewind-odo-extension"
@@ -37,11 +45,16 @@ pipeline {
         } 
         
         stage('Deploy') {
-            // This when clause disables PR build uploads; you may comment this out if you want your build uploaded.
+            // This when clause disables PR/Tag build uploads; you may comment this out if you want your build uploaded.
             when {
                 beforeAgent true
-                not {
-                    changeRequest()
+                allOf {
+                    not {
+                        changeRequest()
+                    }
+                    not {
+                        buildingTag()
+                    }
                 }
             }
 
